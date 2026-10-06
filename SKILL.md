@@ -154,5 +154,10 @@ Do not repeat earlier messages.
   brief and in automated checks.
 - Pinning a time/money type change on the epic when the old type is an existing shared contract. Flag it as
   separate follow-up work instead.
+- Workers sharing local infrastructure (one Kafka, one database) poison each other's runs: a mock in
+  one phase's test publishes onto the topics the E2E owner's real services consume, moves consumer
+  watermarks, and the E2E stays green through a fallback path while the real path is never exercised.
+  Give the E2E owner an exclusive window (or separate brokers/topics), and have the harness assert the
+  primary path ran (for example: exactly one call, closed by the event, not by a sweeper).
 - Shared tool state that holds one feature at a time (a global STATE or trace file) gets overwritten by
   whichever phase ran last. Restore it from the per-feature copy before you hand it to someone else.
