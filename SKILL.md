@@ -97,7 +97,11 @@ Stages run in order; each has a gate. Full message wording: `references/message-
 - For every spec, the coordinator checks cross-phase consistency: event names and payloads, error codes,
   status codes, field names, units, time types, who owns timeouts/expiry. Disagreements are settled by the
   coordinator and written into both specs.
-- Gate: the user approves each SD.
+- For every API an outside partner calls or receives (requests, responses, webhooks, callbacks), send the
+  draft contract to the partner for review while it is still a spec: field names, which values the
+  partner actually has at each call, ids and their formats, error codes. Inherited names (from an older
+  API or from the business requirement) are the usual source of mistakes.
+- Gate: the user approves each SD; partner-facing contracts also carry the partner's review.
 
 ### 2. Build
 - Workers implement on the epic branch. The coordinator stays out of their code and watches contracts.
@@ -159,5 +163,10 @@ Do not repeat earlier messages.
   watermarks, and the E2E stays green through a fallback path while the real path is never exercised.
   Give the E2E owner an exclusive window (or separate brokers/topics), and have the harness assert the
   primary path ran (for example: exactly one call, closed by the event, not by a sweeper).
+- A partner-facing field name inherited from an older API or from the business requirement, checked only for
+  behaviour (uniqueness, idempotency) and never against what the partner holds at that moment. Example: a
+  hold call required an "order id" because the one-step payment API had one, but the partner creates no
+  order until the session ends; the partner caught it only when the finished guide reached them. Review
+  partner-facing contracts with the partner at spec time.
 - Shared tool state that holds one feature at a time (a global STATE or trace file) gets overwritten by
   whichever phase ran last. Restore it from the per-feature copy before you hand it to someone else.
